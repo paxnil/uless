@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+    <info
+        organisation="com.paxnil.useless.ihmd"
+        module="ihmd"
+        status="integration">
+    </info>
+    <configurations>
+        <conf name="default"/>
+        <conf name="compile" extends="default"/>
+        <conf name="runtime" extends="default"/>
+        <conf name="sources"/>
+        <conf name="precompile" visibility="private"/>
+    </configurations>
+    <dependencies>
+        <dependency org="org.slf4j" name="slf4j-api" rev="1.7.7" conf="default;sources"/>
+        <dependency org="org.antlr" name="antlr4-runtime" rev="4.3" conf="default;sources"/>
+        <dependency org="org.antlr" name="antlr4" rev="4.3" conf="precompile->default"/>
+    </dependencies>
+</ivy-module>

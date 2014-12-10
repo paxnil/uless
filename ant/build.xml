@@ -1,0 +1,75 @@
+<project name="useless-ant" default="package"
+    xmlns:ivy="antlib:org.apache.ivy.ant"
+    xmlns:useless="antlib:com.paxnil.useless.ant"
+    xmlns:test-ivy="test-antlib:org.apache.ivy.ant"
+    xmlns:test-useless="test-antlib:com.paxnil.useless.ant">
+
+    <!-- Check and initialize Apache Ivy 2.3.0 -->
+    
+    <available property="cond.ivy.jar" file="${user.home}/.ant/ivy-2.3.0.jar"/>
+    <available property="cond.ivy.settings" file="${user.home}/.ant/ivysettings.xml"/>
+
+    <target name="ivy-download" unless="cond.ivy.jar">
+        <mkdir dir="${user.home}/.ant"/>
+        <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0/ivy-2.3.0.jar"
+            dest="${user.home}/.ant/ivy-2.3.0.jar"/>
+    </target>
+
+    <target name="ivy-load" depends="ivy-download">
+        <taskdef uri="antlib:org.apache.ivy.ant" resource="org/apache/ivy/ant/antlib.xml">
+            <classpath path="${user.home}/.ant/ivy-2.3.0.jar"/>
+        </taskdef>
+    </target>
+    
+    <target name="ivy-init" depends="ivy-load" if="cond.ivy.settings">
+        <ivy:settings file="${user.home}/.ant/ivysettings.xml"/>
+    </target>
+
+    <!-- resolve, compile and package -->
+    
+    <target name="resolve" depends="ivy-init">
+        <ivy:cachepath conf="default" pathid="path.ivy.default"/>
+    </target>
+
+    <target name="compile" depends="resolve">
+        <delete dir="target" failonerror="no">
+            <include name=""/>
+        </delete>
+        <mkdir dir="target/bin" />
+        <javac srcdir="src" encoding="UTF-8"
+            classpathref="path.ivy.default" includeantruntime="no"
+            source="1.5" target="1.5" debug="true"
+            destdir="target/bin"/>
+    </target>
+
+    <target name="package" depends="compile">
+        <jar destfile="target/useless-ant-0.2.0.jar"
+            basedir="target/bin">
+            <fileset dir="src" excludes="**/*.java"/>
+        </jar>
+    </target>
+
+    <!-- test -->
+    
+    <target name="test-tasks" depends="package">
+        <classloader name="useless.loader.test">
+            <classpath location="${user.home}/.ant/ivy-2.3.0.jar"/>
+            <classpath location="target/useless-ant-0.2.0.jar"/>
+        </classloader>
+        <taskdef loaderref="useless.loader.test" uri="test-antlib:org.apache.ivy.ant" resource="org/apache/ivy/ant/antlib.xml"/>
+        <taskdef loaderref="useless.loader.test" uri="test-antlib:com.paxnil.useless.ant" resource="com/paxnil/useless/ant/antlib.xml"/>
+    </target>
+        
+    <target name="test-eclipse" depends="test-tasks">
+        <test-ivy:resolve conf="default,sources" resolveid="resolve.test.eclipse"/>
+        <test-useless:ivyeclipse runtime="1.5" resolveid="resolve.test.eclipse">
+            <srcfolder dir="src"/>
+        </test-useless:ivyeclipse>
+    </target>
+
+    <target name="test-alter" depends="test-tasks">
+        <test-ivy:resolve file="test/ivy.xml" resolveid="resolve.test"/>
+        <test-useless:ivyeclipse runtime="1.8" resolveid="resolve.test" basedir="test">
+        </test-useless:ivyeclipse>
+    </target>
+</project>
