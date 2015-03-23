@@ -1,0 +1,13 @@
+[Unit]
+Description=kkauthd uWSGI daemon
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/kkauthd
+ExecStart=/opt/kkauthd/bin/uwsgi --ini kkauthd.conf
+KillMode=process
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
