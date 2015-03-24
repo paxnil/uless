@@ -133,9 +133,10 @@ def _close_db():
 
 @route('/handler')
 def handle():
+    forbidden = False
     target_path, realm, action_name = None, None, None
     #parsed = urlparse(request.headers.get('X-Original-URI'))
-    method = urlparse(request.environ.get('KKAUTHD_ORIG_METHOD'))  # @UndefinedVariable
+    method = request.environ.get('KKAUTHD_ORIG_METHOD')  # @UndefinedVariable
     parsed = urlparse(request.environ.get('KKAUTHD_ORIG_URI'))  # @UndefinedVariable
     
     if parsed.path.startswith('/svn'):
@@ -146,16 +147,23 @@ def handle():
         else:
             action_name = 'svn:write'
     elif parsed.path.startswith('/websvn'):
-        reponame = parse_qs(parsed.query)['reponame'][0]
-        target_path = 'svn:%s:%s' % tuple(reponame.split('.'))
-        realm = 'SVN'
-        action_name = 'svn:read'
+        forbidden = True
+        reponames = parse_qs(parsed.query).get('repname')
+        if reponames and reponames[-1]:
+            target_path = 'svn:%s:%s' % tuple(reponames[-1].split('.'))
+            realm = 'SVN'
+            action_name = 'svn:read'
+        else:
+            response.status = 204
+            return
     
     user = check_access(realm, request.get_header("Authorization"), target_path, action_name)
     if user:
         response.set_header('X-KKAuth-Login', user.login)
         response.set_header('X-KKAuth-Name', user.name.encode('utf8'))
-        response.status = 200
+        response.status = 204
+    elif forbidden:
+        response.status = 403
     else:
         response.set_header('WWW-Authenticate', 'Basic realm="%s"' % realm)
         response.status = 401
@@ -182,4 +190,4 @@ if __name__ == '__main__':
         db.connect()
         db.create_tables([User, Target, Action, Access, PasswordToken])
     else:
-        print('Usage: python kkauthd.py start|stop|initdb|run')
+        print('Usage: python kkauthd.py initdb|run')
