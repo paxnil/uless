@@ -111,9 +111,11 @@ def validate_login(realm, header):
 @cache_region('short', 'check_access')
 def check_access(realm, header, target_path, action_name):
     db.connect()
-    
+
     try:
         user = validate_login(realm, request.headers.get('Authorization'))
+        if action_name is None:
+            return user
         target = Target.get(Target.path==target_path)
         action = Action.get(Action.name==action_name)
         c = Access.select().where(Access.user==user,
@@ -134,26 +136,24 @@ def _close_db():
 @route('/handler')
 def handle():
     forbidden = False
-    target_path, realm, action_name = None, None, None
-    #parsed = urlparse(request.headers.get('X-Original-URI'))
-    method = request.environ.get('KKAUTHD_ORIG_METHOD')  # @UndefinedVariable
-    parsed = urlparse(request.environ.get('KKAUTHD_ORIG_URI'))  # @UndefinedVariable
-    
+    realm, target_path, action_name = "SVN", None, None
+
+    method = request.environ.get('KKAUTHD_ORIG_METHOD')
+    parsed = urlparse(request.environ.get('KKAUTHD_ORIG_URI'))
+
     if parsed.path.startswith('/svn'):
         target_path = 'svn:%s:%s' % tuple(parsed.path.split('/')[2:4])
-        realm = 'SVN'
         if method in ['GET', 'HEAD', 'OPTIONS', 'PROFIND', 'REPORT']:
             action_name = 'svn:read'
         else:
             action_name = 'svn:write'
     elif parsed.path.startswith('/websvn'):
-        forbidden = True
+        forbidden = len(parsed.path) > 8
         reponames = parse_qs(parsed.query).get('repname')
         if reponames and reponames[-1]:
             target_path = 'svn:%s:%s' % tuple(reponames[-1].split('.'))
-            realm = 'SVN'
             action_name = 'svn:read'
-        else:
+        elif forbidden:
             response.status = 204
             return
     
