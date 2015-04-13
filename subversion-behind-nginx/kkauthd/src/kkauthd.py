@@ -24,6 +24,7 @@ if conf.get('db', 'type') == 'mysql':
                              user=conf.get('db', 'user'),
                              passwd=conf.get('db', 'passwd'),
                              max_connections=10,
+                             stale_timeout=600,
                              threadlocals=True)
 elif conf.get('db', 'type') == 'sqlite':
     db = SqliteDatabase(conf.get('db', 'file'), threadlocals=True)
