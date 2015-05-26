@@ -4,6 +4,8 @@ Description=DNSCrypt client proxy
 [Service]
 Type=simple
 NonBlocking=true
+User=nobody
+Group=nobody
 EnvironmentFile=/etc/default/dnscrypt-proxy
 ExecStart=/usr/sbin/dnscrypt-proxy $OPTIONS
 

@@ -1,6 +1,6 @@
 Name:       dnscrypt-proxy
 Version:    1.4.3
-Release:    2%{?dist}
+Release:    5%{?dist}
 Group:      System Environment/Daemons
 Summary:    A tool for securing communications between a client and a DNS resolver
 License:    BSD
@@ -63,14 +63,14 @@ make %{?_smp_mflags}
 %config(noreplace) %{_sysconfdir}/default/dnscrypt-proxy
 
 %post
-selinuxenabled && chcon -t named_exec_t ${name}.service
+selinuxenabled && chcon -t named_exec_t /usr/sbin/dnscrypt-proxy
 #if [ $1 -eq 1]; then
-#    /usr/bin/systemctl preset ${name}.service
+#    /usr/bin/systemctl preset dnscrypt-proxy.service
 #fi
 
 %preun
-/usr/bin/systemctl --no-reload disable ${name}.service >/dev/null 2>&1 ||:
-/usr/bin/systemctl stop ${name}.service >/dev/null 2>&1 ||:
+/usr/bin/systemctl --no-reload disable dnscrypt-proxy.service >/dev/null 2>&1 ||:
+/usr/bin/systemctl stop dnscrypt-proxy.service >/dev/null 2>&1 ||:
 
 %postun
 /usr/bin/systemctl daemon-reload >/dev/null 2>&1 ||:
