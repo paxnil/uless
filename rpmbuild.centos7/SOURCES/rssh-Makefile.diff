@@ -1,0 +1,24 @@
+diff -uNr a/Makefile.am b/Makefile.am
+--- a/Makefile.am	2015-05-26 02:40:54.862470177 +0000
++++ b/Makefile.am	2015-05-26 02:42:56.613474050 +0000
+@@ -19,7 +19,7 @@
+ 	$(CC) -c $(DEFS) $(ourdefs) $(AM_CFLAGS) $(CPPFLAGS) $(LDFLAGS) $<
+ 
+ install-exec-hook:
+-	chmod u+s $(libexecdir)/rssh_chroot_helper
++	chmod u+s $(DESTDIR)$(libexecdir)/rssh_chroot_helper
+ 
+ rpm:	dist
+ 	rpmbuild -ta --sign $(base).tar.gz
+diff -uNr a/Makefile.in b/Makefile.in
+--- a/Makefile.in	2015-05-26 02:40:54.862470177 +0000
++++ b/Makefile.in	2015-05-26 02:42:59.865554314 +0000
+@@ -730,7 +730,7 @@
+ 	$(CC) -c $(DEFS) $(ourdefs) $(AM_CFLAGS) $(CPPFLAGS) $(LDFLAGS) $<
+ 
+ install-exec-hook:
+-	chmod u+s $(libexecdir)/rssh_chroot_helper
++	chmod u+s $(DESTDIR)$(libexecdir)/rssh_chroot_helper
+ 
+ rpm:	dist
+ 	rpmbuild -ta --sign $(base).tar.gz

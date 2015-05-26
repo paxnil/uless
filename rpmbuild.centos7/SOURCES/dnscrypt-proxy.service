@@ -1,0 +1,11 @@
+[Unit]
+Description=DNSCrypt client proxy
+
+[Service]
+Type=simple
+NonBlocking=true
+EnvironmentFile=/etc/default/dnscrypt-proxy
+ExecStart=/usr/sbin/dnscrypt-proxy $OPTIONS
+
+[Install]
+WantedBy=multi-user.target
