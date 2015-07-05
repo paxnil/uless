@@ -1,0 +1,28 @@
+# Maintainer: paxnil <root@paxnil.com>
+
+_realname=libmfx
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=1.10
+pkgrel=1
+pkgdesc="Intel media sdk dispatcher"
+arch=('any')
+url="https://github.com/lu-zero/mfx_dispatch"
+groups=("${MINGW_PACKAGE_PREFIX}")
+license=('GPL')
+options=('staticlibs' 'strip')
+depends=()
+makedepends=("autoconf" "${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
+source=(mfx_dispatch::git+https://github.com/lu-zero/mfx_dispatch.git)
+md5sums=('SKIP')
+
+build() {
+  cd "${srcdir}/mfx_dispatch"
+  autoreconf -i
+  ./configure --host=${MINGW_CHOST} --prefix=${MINGW_PREFIX}
+  make -j
+}
+
+package() {
+  cd "${srcdir}/mfx_dispatch"
+  make DESTDIR="${pkgdir}" install
+}

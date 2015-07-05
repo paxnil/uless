@@ -1,0 +1,46 @@
+diff -ur a/libavcodec/Makefile b/libavcodec/Makefile
+--- a/libavcodec/Makefile	2015-06-10 08:27:50 +0900
++++ b/libavcodec/Makefile	2015-06-10 12:18:04 +0900
+@@ -276,7 +276,7 @@
+ OBJS-$(CONFIG_H264_MMAL_DECODER)       += mmaldec.o
+ OBJS-$(CONFIG_H264_VDA_DECODER)        += vda_h264_dec.o
+ OBJS-$(CONFIG_H264_QSV_DECODER)        += qsvdec_h264.o
+-OBJS-$(CONFIG_H264_QSV_ENCODER)        += qsvenc_h264.o
++OBJS-$(CONFIG_H264_QSV_ENCODER)        += qsvenc_h264.o qsvenc.o qsv.o
+ OBJS-$(CONFIG_HEVC_DECODER)            += hevc.o hevc_mvs.o hevc_ps.o hevc_sei.o \
+                                           hevc_cabac.o hevc_refs.o hevcpred.o    \
+                                           hevcdsp.o hevc_filter.o
+diff -ur a/libavcodec/qsv_internal.h b/libavcodec/qsv_internal.h
+--- a/libavcodec/qsv_internal.h	2015-06-10 08:27:51 +0900
++++ b/libavcodec/qsv_internal.h	2015-06-10 12:04:46 +0900
+@@ -29,6 +29,8 @@
+ #define QSV_VERSION_MINOR 1
+ 
+ #define ASYNC_DEPTH_DEFAULT 4       // internal parallelism
++#define SYNC_TIME_DEFAULT   5000    // 5s
++#define TIMEOUT_DEFAULT     5000    // 5s
+ 
+ typedef struct QSVFrame {
+     AVFrame *frame;
+diff -ur a/libavcodec/qsvenc.c b/libavcodec/qsvenc.c
+--- a/libavcodec/qsvenc.c	2014-05-07 22:10:44 +0900
++++ b/libavcodec/qsvenc.c	2015-06-10 12:05:00 +0900
+@@ -34,6 +34,7 @@
+ #include "internal.h"
+ #include "qsv.h"
+ #include "qsvenc.h"
++#include "qsv_internal.h"
+ 
+ static int realloc_surface_pool(QSVEncContext *q, int old_nmemb, int new_nmemb)
+ {
+diff -ur a/libavcodec/qsvenc_h264.c b/libavcodec/qsvenc_h264.c
+--- a/libavcodec/qsvenc_h264.c	2014-05-07 22:10:44 +0900
++++ b/libavcodec/qsvenc_h264.c	2015-06-10 12:05:11 +0900
+@@ -31,6 +31,7 @@
+ #include "h264.h"
+ #include "qsv.h"
+ #include "qsvenc.h"
++#include "qsv_internal.h"
+ 
+ typedef struct QSVH264EncContext {
+     AVClass *class;
