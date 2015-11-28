@@ -5,4 +5,4 @@ scrnoff.exe:
 	gcc -mwindows scrnoff.c -o scrnoff.exe
 
 clean:
-	rm scrnoff.exe
+	rm scrnoff.o scrnoff.exe
