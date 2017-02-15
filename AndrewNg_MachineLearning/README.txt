@@ -1,0 +1,1 @@
+https://s3.amazonaws.com/spark-public/ml/exercises/on-demand/machine-learning-ex[1-8].zip
